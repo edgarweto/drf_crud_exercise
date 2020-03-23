@@ -3,8 +3,8 @@ from django.test import TestCase
 from recipapp.models import Recipe, Ingredient
 from recipapp.serializers import RecipeSerializer, RecipeDetailSerializer
 
-def _new_ingredient(name):
-    return Ingredient.objects.create(name=name)
+def _new_ingredient(name, recipe_id):
+    return Ingredient.objects.create(name=name, recipe_id=recipe_id)
 
 def _sample_recipe(ingredientList):
     recipe = Recipe.objects.create(
@@ -13,7 +13,7 @@ def _sample_recipe(ingredientList):
     )
 
     for ingrName in ingredientList:
-        recipe.ingredients.add(_new_ingredient(ingrName))
+        recipe.ingredients.add(_new_ingredient(ingrName, recipe.id))
 
     return recipe
 

@@ -12,7 +12,3 @@ app_name = 'recipapp'
 urlpatterns = [
     path('', include(router.urls))
 ]
-
-# urlpatterns = [
-#     path('recipes/', views.recipe_list)
-# ]

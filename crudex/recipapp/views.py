@@ -8,7 +8,7 @@ from rest_framework.parsers import JSONParser
 from rest_framework import status, viewsets, mixins
 
 from recipapp.models import Recipe
-from recipapp.serializers import RecipeSerializer
+from recipapp import serializers
 
 
 # @csrf_exempt
@@ -45,9 +45,27 @@ from recipapp.serializers import RecipeSerializer
 #             print(str(e))
 #             return JsonResponse(sys.exc_info()[0], status=status.HTTP_500_INTERNAL_ERROR)
 
-class RecipeViewSet(viewsets.GenericViewSet,
-                    mixins.ListModelMixin):
+class RecipeViewSet(viewsets.ModelViewSet):
     """View for all recipes endpoints"""
 
-    serializer_class = RecipeSerializer
+    serializer_class = serializers.RecipeSerializer
     queryset = Recipe.objects.all()
+
+    def get_serializer_class(self):
+        """Return appropiate serializer depending on the endpoint"""
+
+        if self.action == 'retrieve':
+            return serializers.RecipeDetailSerializer
+
+        return self.serializer_class
+
+    # def perform_create(self, serializer):
+    #     """Support and specialize creating new recipes"""
+    #     serializer.save()
+
+    # def get_queryset(self):
+    #     """Retrieve ingredients and populate into the queryset"""
+
+    #     queryset = self.queryset
+
+    #     return queryset

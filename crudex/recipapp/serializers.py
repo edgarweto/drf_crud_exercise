@@ -19,7 +19,7 @@ class RecipeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Recipe
-        fields = ['name', 'description', 'ingredients']
+        fields = ['id', 'name', 'description', 'ingredients']
         read_only_fields = ('id',)
 
 
@@ -35,6 +35,34 @@ class RecipeSerializer(serializers.ModelSerializer):
             Ingredient.objects.create(recipe=recipe, **ingr_data)
 
         return recipe
+
+    def update(self, instance, validated_data):
+        """Updates a recipe instance"""
+        instance.name = validated_data.get('name', instance.name)
+        instance.description = validated_data.get('description', instance.description)
+
+        ingredients_data = validated_data.pop('ingredients')
+
+        new_ingredient_names = [ingr['name'] for ingr in ingredients_data]
+
+        # First, remove unused ingredients
+        current_ingredients = instance.ingredients.all()
+        for ingr_data in current_ingredients:
+            name = ingr_data.name
+            if not name in new_ingredient_names:
+                Ingredient.objects.filter(id=ingr_data.id).delete()
+
+        current_ingredient_names = [ingr.name for ingr in current_ingredients]
+
+        # Now add the new ones
+        for ingr_data in ingredients_data:
+            name = ingr_data['name']
+            if name in current_ingredient_names:
+                common_ingredients[name] = 1
+            else:
+                Ingredient.objects.create(recipe=instance, **ingr_data)
+
+        return instance
 
 
 class RecipeDetailSerializer(RecipeSerializer):

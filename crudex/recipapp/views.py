@@ -11,40 +11,6 @@ from recipapp.models import Recipe
 from recipapp import serializers
 
 
-# @csrf_exempt
-# @api_view(['GET', 'POST'])
-# def recipe_list(request):
-#     """
-#     Experiment with function views before using DRF ViewSets
-#     List all the recipes
-#     """
-
-#     if request.method == 'GET':
-#         recipes = Recipe.objects.all()
-#         serializer = RecipeSerializer(recipes, many=True)
-
-#         return JsonResponse(serializer.data, safe=False)
-
-#     elif request.method == 'POST':
-#         try:
-#             print('\n >>> POST request')
-#             # print(request.data)
-
-#             print('\n >>> serialize')
-#             print(request.data)
-#             serializer = RecipeSerializer(data=request.data)
-
-#             if serializer.is_valid():
-#                 serializer.save()
-#                 return JsonResponse(serializer.data, status=status.HTTP_200_OK)
-
-#             print('\n >>> NOT VALID DATA!')
-#             return JsonResponse(serializer.errors, status=status.HTTP_400_BAR_REQUEST)
-#         except Exception as e:
-#             print('\n >>> EXCEPTION')
-#             print(str(e))
-#             return JsonResponse(sys.exc_info()[0], status=status.HTTP_500_INTERNAL_ERROR)
-
 class RecipeViewSet(viewsets.ModelViewSet):
     """View for all recipes endpoints"""
 
@@ -59,13 +25,12 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
         return self.serializer_class
 
-    # def perform_create(self, serializer):
-    #     """Support and specialize creating new recipes"""
-    #     serializer.save()
+    def get_queryset(self):
+        """Retrieve ingredients and populate into the queryset"""
 
-    # def get_queryset(self):
-    #     """Retrieve ingredients and populate into the queryset"""
+        queryset = self.queryset
+        filter_name = self.request.query_params.get('name', '')
+        if filter_name:
+            queryset = queryset.filter(name=filter_name)
 
-    #     queryset = self.queryset
-
-    #     return queryset
+        return queryset

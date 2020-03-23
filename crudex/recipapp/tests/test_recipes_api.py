@@ -144,3 +144,24 @@ class TestRecipesApi(TestCase):
         self.assertEqual(edited.data['description'], 'Boil it 5 min')
         self.assertEqual(len(edited.data['ingredients']), 1)
         self.assertEqual(edited.data['ingredients'][0]['name'], 'water')
+
+    def test_recipe_delete(self):
+        """Test endpoint for editing ingredients of a recipe"""
+
+        # Create a recipe with ingredients
+        recipe = new_recipe('to_be_deleted_recipe')
+        add_ingredients(recipe, ['sugar-123', 'salt-123'])
+
+        # Delete the recipe (and the ingredients)
+        delete_url = reverse('recipapp:recipe-detail', args=[recipe.id])
+        result = self.client.delete(delete_url)
+        self.assertEqual(result.status_code, status.HTTP_204_NO_CONTENT)
+
+        # Now check that the recipe is not there:
+        result = self.client.get(ENDPOINT_RECIPES, {'name':'to_be_deleted_recipe'})
+        self.assertEqual(result.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(result.data), 0)
+
+        # Check that ingredients have been deleted as well
+        all_ingr_names = [ingr.name for ingr in Ingredient.objects.all()]
+        self.assertEqual(len(all_ingr_names), 0)

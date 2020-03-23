@@ -64,7 +64,7 @@ class TestRecipesApi(TestCase):
         recipe = new_recipe('gazpacho')
         add_ingredients(recipe, ['sugar', 'salt'])
 
-        result = self.client.get(ENDPOINT_RECIPES, {'name':'gazpacho'})
+        result = self.client.get(ENDPOINT_RECIPES, {'name':'gaz'})
 
         self.assertEqual(result.status_code, status.HTTP_200_OK)
         self.assertEqual(len(result.data), 1)

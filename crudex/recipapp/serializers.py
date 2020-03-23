@@ -57,9 +57,7 @@ class RecipeSerializer(serializers.ModelSerializer):
         # Now add the new ones
         for ingr_data in ingredients_data:
             name = ingr_data['name']
-            if name in current_ingredient_names:
-                common_ingredients[name] = 1
-            else:
+            if not name in current_ingredient_names:
                 Ingredient.objects.create(recipe=instance, **ingr_data)
 
         return instance

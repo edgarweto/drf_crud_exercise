@@ -31,6 +31,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
         queryset = self.queryset
         filter_name = self.request.query_params.get('name', '')
         if filter_name:
-            queryset = queryset.filter(name=filter_name)
+            queryset = queryset.filter(name__startswith=filter_name)
 
         return queryset

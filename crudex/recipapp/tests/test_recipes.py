@@ -23,18 +23,6 @@ class RecipeTests(TestCase):
     Set of tests for recipes
     """
 
-    def test_model(self):
-        """Test the model structure"""
-
-        ingredientList = ['tomatoes', 'salt', 'olive oil', 'mozzarella', 'basil', 'iberian ham']
-        recipe = _sample_recipe(ingredientList)
-
-        recipes = Recipe.objects.all()
-
-        self.assertEqual(len(recipes), 1)
-        self.assertEqual(recipes[0].name, 'Capresse Salad')
-        self.assertEqual(recipes[0].description, 'Best tomato salad')
-
     def test_serializers(self):
         """Test model serializers"""
 

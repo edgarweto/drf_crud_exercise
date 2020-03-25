@@ -1,10 +1,9 @@
-from django.test import TestCase
 from django.urls import reverse
 
 import json
 
+from rest_framework.test import APITestCase
 from rest_framework import status
-from rest_framework.test import APIClient
 
 from recipapp.models import Recipe, Ingredient
 
@@ -29,11 +28,11 @@ def recipe_detail_url(recipe_id):
     return reverse('recipapp:recipe-detail', args=[recipe_id])
 
 
-class TestRecipesApi(TestCase):
+class TestRecipesApi(APITestCase):
     """Test endpoints for Recipes CRUD API"""
 
-    def setUp(self):
-        self.client = APIClient()
+    # def setUp(self):
+    #     self.client = APIClient()
 
     def test_recipes_list(self):
         """Test the GET list for recipes"""
@@ -99,8 +98,8 @@ class TestRecipesApi(TestCase):
         }
 
         result = self.client.post(ENDPOINT_RECIPES,
-                                    json.dumps(payload),
-                                    content_type="application/json")
+                                    payload,
+                                    format="json")
 
         self.assertEqual(result.status_code, status.HTTP_201_CREATED)
         self.assertEqual(result.data['name'], 'Soup')
@@ -123,14 +122,14 @@ class TestRecipesApi(TestCase):
         }
 
         result = self.client.post(ENDPOINT_RECIPES,
-                                    json.dumps(payload),
-                                    content_type="application/json")
+                                    payload,
+                                    format="json")
 
         # Now edit the description and the ingredient list
         recipe_id = result.data['id']
 
         payload2 = {
-            'name': payload['name'],
+            'name': 'Soup2',
             'description': 'Boil it 5 min',
             'ingredients': [
                 { 'name': 'water' }
@@ -138,9 +137,10 @@ class TestRecipesApi(TestCase):
         }
 
         edited = self.client.patch(recipe_detail_url(recipe_id),
-                                    json.dumps(payload2),
-                                    content_type="application/json")
+                                    payload2,
+                                    format="json")
 
+        self.assertEqual(edited.data['name'], 'Soup2')
         self.assertEqual(edited.data['description'], 'Boil it 5 min')
         self.assertEqual(len(edited.data['ingredients']), 1)
         self.assertEqual(edited.data['ingredients'][0]['name'], 'water')
@@ -157,11 +157,6 @@ class TestRecipesApi(TestCase):
         result = self.client.delete(delete_url)
         self.assertEqual(result.status_code, status.HTTP_204_NO_CONTENT)
 
-        # Now check that the recipe is not there:
-        result = self.client.get(ENDPOINT_RECIPES, {'name':'to_be_deleted_recipe'})
-        self.assertEqual(result.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(result.data), 0)
-
-        # Check that ingredients have been deleted as well
-        all_ingr_names = [ingr.name for ingr in Ingredient.objects.all()]
-        self.assertEqual(len(all_ingr_names), 0)
+        # Now check that the recipe and the ingredients are not there:
+        self.assertFalse(Recipe.objects.filter(id=recipe.id).exists())
+        self.assertFalse(Ingredient.objects.filter(recipe_id=recipe.id).exists())

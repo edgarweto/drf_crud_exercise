@@ -40,6 +40,7 @@ class RecipeSerializer(serializers.ModelSerializer):
         """Updates a recipe instance"""
         instance.name = validated_data.get('name', instance.name)
         instance.description = validated_data.get('description', instance.description)
+        instance.save()
 
         ingredients_data = validated_data.pop('ingredients')
 
